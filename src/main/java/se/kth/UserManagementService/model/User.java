@@ -17,7 +17,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String username;
+    private String password;
+    private String email;
     private String institution;
     private String position;
     @Column(name = "user_rank")
@@ -47,4 +49,6 @@ public class User {
             this.motherName = null;
         }
     }
+
+
 }

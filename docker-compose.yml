@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      DB_VENDOR: mysql
+      DB_ADDR: db
+      DB_DATABASE: healthSystem
+      DB_USER: root
+      DB_PASSWORD: Kth12345
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8180:8080
+    depends_on:
+      - db
+    command:
+      - start-dev
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Kth12345
+      MYSQL_DATABASE: healthSystem
+    ports:
+      - 3307:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
