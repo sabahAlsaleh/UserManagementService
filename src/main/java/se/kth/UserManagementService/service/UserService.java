@@ -1,8 +1,10 @@
 package se.kth.UserManagementService.service;
 
 
+import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import se.kth.UserManagementService.model.User;
 import se.kth.UserManagementService.repo.UserRepository;
@@ -27,7 +30,8 @@ public class UserService implements UserDetailsService {
     private  AuthenticationManager authenticationManager;
     @Autowired
     private  UserRepository authRepository;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -38,6 +42,8 @@ public class UserService implements UserDetailsService {
 
     public User createUser(User user) {
         user.setParentsNamesIfUnder18(user.getFatherName(), user.getMotherName());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userRepository.save(user);
     }
 
@@ -60,18 +66,16 @@ public class UserService implements UserDetailsService {
 
 
 
-    public User authenticate(String username, String password) {
-        try{
-            Authentication authenticationResponse = authenticationManager
-                    .authenticate(
-                            new UsernamePasswordAuthenticationToken(username, password)
-                    );
-            SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
-            return getUserByUsername(username);
-        } catch (AuthenticationException e) {
-            e.printStackTrace();
-            throw new NoSuchElementException("User not found: " + username);
+
+    public User authenticate(String email, String rawPassword) {
+        User user = (User) userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found: " + email));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new BadCredentialsException("Bad credentials");
         }
+
+        return user;
     }
 
 
@@ -89,4 +93,5 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
     }
+
 }

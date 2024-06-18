@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,7 +17,7 @@ import se.kth.UserManagementService.service.UserService;
 import java.util.List;
 @CrossOrigin
 @RestController
-@RequestMapping("/api/users/auth")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
@@ -36,9 +37,11 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("create")
+    @PostMapping("auth/create")
     @PreAuthorize("hasRole('DataOwner')")
     public User createUser(@RequestBody User user) {
+
+
         return userService.createUser(user);
     }
 
@@ -58,23 +61,25 @@ public class UserController {
     }
 
 
-    @PostMapping("auth/login")
-    public ResponseEntity<User> authenticate(@RequestBody(required = false) AuthenticateRequest authenticateRequest,
-                                                Authentication authentication) {
+
+    @PostMapping("/auth/login")
+    public ResponseEntity<?> authenticate(@RequestBody(required = false) AuthenticateRequest authenticateRequest,
+                                          Authentication authentication) {
         try {
             User user;
-            if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser"))
+            if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
                 user = userService.getUserByUsername(authentication.getName());
-            else if (authenticateRequest != null)
+            } else if (authenticateRequest != null) {
                 user = userService.authenticate(authenticateRequest.email(), authenticateRequest.password());
-            else{
+            } else {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect user ID or password");
             }
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect user ID or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect user ID or password");
         }
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
