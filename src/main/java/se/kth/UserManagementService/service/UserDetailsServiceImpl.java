@@ -1,6 +1,6 @@
 package se.kth.UserManagementService.service;
 
-
+/*
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +14,10 @@ import se.kth.UserManagementService.config.UserDetailsImpl;
 import se.kth.UserManagementService.model.User;
 import se.kth.UserManagementService.repo.UserRepository;
 
-import java.util.NoSuchElementException;
 
+ */
+import java.util.NoSuchElementException;
+/*
 @Configuration
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
@@ -31,3 +33,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
 }
+
+
+ */

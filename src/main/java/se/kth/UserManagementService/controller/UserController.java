@@ -1,12 +1,12 @@
 package se.kth.UserManagementService.controller;
 
 import jakarta.ws.rs.NotFoundException;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +17,7 @@ import se.kth.UserManagementService.service.UserService;
 import java.util.List;
 @CrossOrigin
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired
@@ -29,6 +29,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @GetMapping("home")
+    public String home() {
+        return "  home";
+    }
+
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('DataOwner')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
@@ -37,10 +43,9 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("auth/create")
+    @PostMapping("/create")
     @PreAuthorize("hasRole('DataOwner')")
     public User createUser(@RequestBody User user) {
-
 
         return userService.createUser(user);
     }
@@ -62,7 +67,7 @@ public class UserController {
 
 
 
-    @PostMapping("/auth/login")
+    @PostMapping("auth/login")
     public ResponseEntity<?> authenticate(@RequestBody(required = false) AuthenticateRequest authenticateRequest,
                                           Authentication authentication) {
         try {

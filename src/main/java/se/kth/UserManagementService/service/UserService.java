@@ -3,11 +3,7 @@ package se.kth.UserManagementService.service;
 
 import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +14,6 @@ import se.kth.UserManagementService.model.User;
 import se.kth.UserManagementService.repo.UserRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -26,20 +21,38 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private  AuthenticationManager authenticationManager;
-    @Autowired
-    private  UserRepository authRepository;
+
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private  UserRepository authRepository;
+
     public List<User> getAllUsers() {
+
         return userRepository.findAll();
     }
+    /*
+    @Autowired
+    private KeycloakSecurityManager keycloakSecurityManager;
+    @Value("${realm}")
+    private String realm;
 
+    public List<UserRepresentation> getAllUser() {
+        Keycloak keycloak = keycloakSecurityManager.getKeycloakInstance();
+        return keycloak.realm(realm)
+                .users()
+                .list();
+    }
+
+
+
+     */
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
-
     public User createUser(User user) {
         user.setParentsNamesIfUnder18(user.getFatherName(), user.getMotherName());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -74,6 +87,8 @@ public class UserService implements UserDetailsService {
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new BadCredentialsException("Bad credentials");
         }
+
+
 
         return user;
     }
