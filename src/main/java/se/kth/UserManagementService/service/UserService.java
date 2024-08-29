@@ -10,11 +10,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import se.kth.UserManagementService.model.Role;
 import se.kth.UserManagementService.model.User;
+import se.kth.UserManagementService.repo.RoleRepository;
 import se.kth.UserManagementService.repo.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -29,27 +32,19 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private  UserRepository authRepository;
+    private final RoleRepository roleRepository;
+
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public List<User> getAllUsers() {
 
         return userRepository.findAll();
-    }
-    /*
-    @Autowired
-    private KeycloakSecurityManager keycloakSecurityManager;
-    @Value("${realm}")
-    private String realm;
 
-    public List<UserRepresentation> getAllUser() {
-        Keycloak keycloak = keycloakSecurityManager.getKeycloakInstance();
-        return keycloak.realm(realm)
-                .users()
-                .list();
     }
 
-
-
-     */
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
@@ -69,6 +64,15 @@ public class UserService implements UserDetailsService {
             user.setAddress(userDetails.getAddress());
             user.setBirthdate(userDetails.getBirthdate());
             user.setParentsNamesIfUnder18(userDetails.getFatherName(), userDetails.getMotherName());
+
+            user.getRoles().clear();
+            Set<Role> newRoles = userDetails.getRoles();
+            for (Role role : newRoles) {
+
+                Role existingRole = roleRepository.findById(role.getId())
+                        .orElseThrow(() -> new RuntimeException("Role not found with id: " + role.getId()));
+                user.getRoles().add(existingRole);
+            }
             return userRepository.save(user);
         });
     }

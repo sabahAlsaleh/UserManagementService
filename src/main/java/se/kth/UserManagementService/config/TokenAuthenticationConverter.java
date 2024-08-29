@@ -1,17 +1,11 @@
 package se.kth.UserManagementService.config;
-
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
-
-
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,10 +35,6 @@ public class TokenAuthenticationConverter implements Converter<Jwt, Collection<G
         }
         return new ArrayList<>();
     }
-
-
-
-
 
 
 }

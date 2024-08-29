@@ -35,7 +35,7 @@ public class UserController {
     }
 
 
-    @GetMapping("/{id}")
+    @GetMapping("/auth/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('DataOwner')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
@@ -56,6 +56,7 @@ public class UserController {
         return userService.updateUser(id, userDetails)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+
     }
 
     @DeleteMapping("delete/{id}")
@@ -92,14 +93,6 @@ public class UserController {
         return new ResponseEntity<>("Logged out", HttpStatus.OK);
     }
 
-    @GetMapping("/info")
-    public ResponseEntity<User> getUserInfo(Authentication authentication) {
-        try {
-            User user = userService.getUserByUsername(authentication.getName());
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
-        }
-    }
+
 
 }
